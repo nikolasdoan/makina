@@ -1,0 +1,62 @@
+llm:
+  provider: openai
+  model: gpt-4o-mini
+  timeout_ms: 20000
+safety:
+  confidence_threshold: 0.8
+  speed_scale: 0.3
+  force_threshold_newton: 25
+  joint_velocity_scale: 0.3
+  joint_acceleration_scale: 0.2
+zones:
+  '1':
+    center_pose: &id003
+      x: 0.4
+      y: 0.2
+      z: 0.1
+    tolerance_m: 0.03
+  '2':
+    center_pose: &id001
+      x: 0.4
+      y: -0.2
+      z: 0.1
+    tolerance_m: 0.03
+  '3':
+    center_pose: &id002
+      x: 0.45
+      y: 0.0
+      z: 0.1
+    tolerance_m: 0.04
+perception:
+  model: yolov8n
+  min_size_mm: 20
+robot:
+  model: UR5
+  camera: D435i
+  mount: wrist
+  working_distance_cm:
+  - 30
+  - 50
+objects:
+  red_cube:
+    pose: *id001
+  blue_cube:
+    pose: *id002
+  green_cube:
+    pose: *id003
+  yellow_cube:
+    pose:
+      x: 0.32
+      y: 0.12
+      z: 0.05
+workspace:
+  bounds_m:
+    x:
+    - 0.1
+    - 0.6
+    y:
+    - -0.3
+    - 0.3
+    z:
+    - 0.0
+    - 0.3

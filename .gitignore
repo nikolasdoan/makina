@@ -1,0 +1,12 @@
+.venv/
+robot-agent/.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.vscode/
+.idea/
+.pytest_cache/
+dist/
+build/
+.coverage
