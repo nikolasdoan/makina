@@ -8,6 +8,7 @@ import yaml
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
 from .bridge_ros2 import MockBridge, ZoneDefinition
@@ -112,7 +113,11 @@ app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, 
 # Serve simple web UI
 from pathlib import Path as _Path
 _BASE_DIR = _Path(__file__).resolve().parents[1]
-app.mount('/', StaticFiles(directory=str(_BASE_DIR / 'frontend'), html=True), name='static')
+app.mount('/ui', StaticFiles(directory=str(_BASE_DIR / 'frontend'), html=True), name='static')
+
+@app.get('/')
+async def root_redirect():
+    return RedirectResponse(url='/ui/')
 
 
 @app.get("/status")
@@ -136,6 +141,13 @@ async def get_config() -> Dict[str, Any]:
         "workspace": SETTINGS.get("workspace", {}),
     }
 
+
+from tools.term_map import load_config as _load_cfg, render_map as _render_map
+
+@app.get('/map')
+async def get_map():
+    cfg=_load_cfg(BASE_DIR)
+    return { 'map': _render_map(cfg) }
 
 @app.post("/config/object")
 async def upsert_object(obj: ObjectUpsert) -> Dict[str, Any]:
