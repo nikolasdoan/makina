@@ -3,54 +3,128 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Robot Agent Chat</title>
+  <title>Makina</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; background: #f6f7fb; }
-    .app { max-width: 800px; margin: 0 auto; padding: 24px; }
-    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-    .row { display: flex; gap: 8px; }
-    #input { flex: 1; font-size: 16px; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; }
-    button { padding: 10px 14px; border: none; border-radius: 8px; background: #111827; color: #fff; cursor: pointer; }
-    button:disabled { opacity: 0.6; cursor: default; }
-    .messages { margin-top: 12px; height: 360px; overflow: auto; padding-right: 4px; }
-    .msg { margin: 8px 0; }
-    .msg.user { text-align: right; }
-    .msg .bubble { display: inline-block; padding: 10px 12px; border-radius: 12px; }
-    .msg.user .bubble { background: #111827; color: #fff; }
-    .msg.bot .bubble { background: #e5e7eb; color: #111827; }
-    .panel { margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    pre { background: #111827; color: #e5e7eb; padding: 8px; border-radius: 8px; overflow: auto; }
-    small { color: #6b7280; }
+    :root { --gap: 14px; --bd: #e5e7eb; --bg: #f6f7fb; --card: #fff; --text: #111827; --muted: #6b7280; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; overflow-y: auto; overflow-x: hidden; }
+    .layout { display: grid; grid-template-columns: 56px 1fr; height: 100vh; }
+    .sidebar { background: #0f172a; color: #cbd5e1; display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 14px; }
+    .sb-icon { width: 24px; height: 24px; opacity: 0.9; }
+    .main { display: flex; flex-direction: column; height: 100%; }
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
+    .title { font-weight: 700; font-size: 18px; }
+    .badge { font-size: 12px; color: var(--muted); }
+    .banner { display:none; margin: 0 16px 4px; padding: 8px 10px; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; border-radius:8px; }
+    .banner button { margin-left: 8px; background:#9a3412; color:#fff; border:none; border-radius:6px; padding:6px 10px; }
+    .chips { display:flex; gap:8px; padding: 0 16px 8px; flex-wrap: wrap; }
+    .chip { padding: 6px 10px; border:1px solid var(--bd); border-radius: 999px; font-size: 12px; background:#fff; color:#334155; }
+
+    .content { flex:1; padding: 0 12px 12px; }
+    .grid { display: grid; grid-template-columns: minmax(280px, 2fr) minmax(360px, 2fr) minmax(280px, 1.8fr); gap: var(--gap); height: 100%; align-items: stretch; }
+    .col { display:flex; flex-direction: column; gap: var(--gap); height: 100%; min-width: 0; }
+    .card { background: var(--card); border: 1px solid var(--bd); border-radius: 12px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.04); display:flex; flex-direction: column; min-height: 0; }
+    .card h4 { margin: 0 0 8px; }
+    .row { display:flex; gap:8px; }
+    #input { flex:1; font-size:16px; padding:10px 12px; border:1px solid var(--bd); border-radius:8px; outline:none; }
+    button { padding:10px 14px; border:none; border-radius:8px; background:#111827; color:#fff; cursor:pointer; }
+    .messages { flex:1; min-height: clamp(180px, 36vh, 420px); overflow:auto; margin-top:10px; }
+    .msg { margin:8px 0; }
+    .msg .bubble { display:inline-block; padding:10px 12px; border-radius:12px; }
+    .msg.user { text-align:right; }
+    .msg.user .bubble { background:#fef9c3; color:#374151; }
+    .msg.bot .bubble { background:#e5e7eb; color:#111827; }
+    pre { background:#111827; color:#e5e7eb; padding:8px; border-radius:8px; overflow:auto; }
+    .panel-fixed pre { height: clamp(140px, 22vh, 220px); }
+    .map pre { flex: 1; min-height: clamp(260px, 48vh, 520px); }
+    .quick { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .qbtn { font-size:12px; padding:6px 10px; border:1px solid var(--bd); border-radius:999px; background:#fff; color:#334155; }
+    .map-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+    .icon-btn { background:#fff; color:#111827; border:1px solid var(--bd); padding:6px 8px; border-radius:8px; }
+  
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 48px 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .messages { min-height: 220px; }
+    }
   </style>
 </head>
 <body>
-  <div class="app">
-    <h2>Robot Agent Chat</h2>
-    <div class="card">
-      <div class="row">
-        <input id="input" placeholder="e.g., move blue cube to 1" />
-        <button id="send">Send</button>
+  <div class="layout">
+    <aside class="sidebar">
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/></svg>
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12h16M12 4v16"/></svg>
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 9h8v6H8z"/></svg>
+      <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l5 5L20 7"/></svg>
+    </aside>
+    <main class="main">
+      <div class="header">
+        <div class="title">Makina</div>
+        <div class="badge" id="modelBadge">LLM: checking…</div>
       </div>
-      <div class="messages" id="messages"></div>
-      <div class="panel">
-        <div>
-          <h4>Status</h4>
-          <div id="llmBanner" style="margin-bottom:8px; font-size:12px; color:#6b7280;">LLM: checking…</div>
-          <pre id="status"><small>fetching…</small></pre>
-        </div>
-        <div>
-          <h4>Config</h4>
-          <pre id="config"><small>fetching…</small></pre>
+      <div class="banner" id="llmBannerTop">LLM inactive. <button id="bannerActivate">Activate LLM</button></div>
+      <div class="chips">
+        <div class="chip">Objects</div>
+        <div class="chip">Zones</div>
+        <div class="chip">LLM</div>
+        <div class="chip">Safety</div>
+        <div class="chip">Speed</div>
+        <div class="chip">Logs</div>
+      </div>
+      <div class="content">
+        <div class="grid">
+          <div class="col">
+            <div class="card panel-fixed">
+              <h4>Status</h4>
+              <pre id="status"><small>fetching…</small></pre>
+            </div>
+            <div class="card panel-fixed">
+              <h4>Config</h4>
+              <pre id="config"><small>fetching…</small></pre>
+            </div>
+            <div class="card">
+              <h4>LLM</h4>
+              <div class="row" style="gap:8px; margin-bottom:8px;">
+                <input id="apiKey" placeholder="OpenAI API Key" style="flex:1; padding:8px; border:1px solid var(--bd); border-radius:8px;" />
+                <input id="model" placeholder="Model (gpt-4o-mini)" style="width:180px; padding:8px; border:1px solid var(--bd); border-radius:8px;" />
+              </div>
+              <div class="row">
+                <button id="btnActivate" style="background:#065f46">Activate</button>
+                <button id="btnDeactivate" style="background:#b91c1c">Deactivate</button>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card map">
+              <div class="map-head"><h4>Map</h4><button class="icon-btn" id="btnMapRefresh">Refresh</button></div>
+              <pre id="map"><small>fetching…</small></pre>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card chat">
+              <div class="row">
+                <input id="input" placeholder="e.g., move blue cube to 1" />
+                <button id="send">Send</button>
+              </div>
+              <div class="quick">
+                <button class="qbtn" data-cmd="status">status</button>
+                <button class="qbtn" data-cmd="move blue cube to 1">move blue→1</button>
+                <button class="qbtn" data-cmd="move red cube to 2">move red→2</button>
+                <button class="qbtn" data-cmd="stop">stop</button>
+                <button class="qbtn" data-cmd="set speed 0.3">set speed 0.3</button>
+              </div>
+              <div class="messages" id="messages"></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="card" style="margin-top:12px;">
-      <h4>Map</h4>
-      <pre id="map"><small>fetching…</small></pre>
-    </div>
+    </main>
   </div>
-
-  <script>
+<script>
     const server = (localStorage.getItem('server') || 'http://127.0.0.1:8000').replace(/\/$/, '');
     const input = document.getElementById('input');
     const send = document.getElementById('send');
@@ -58,6 +132,10 @@
     const statusEl = document.getElementById('status');
     const configEl = document.getElementById('config');
     const mapEl = document.getElementById('map');
+    const apiKeyEl = document.getElementById('apiKey');
+    const modelEl = document.getElementById('model');
+    const btnActivate = document.getElementById('btnActivate');
+    const btnDeactivate = document.getElementById('btnDeactivate');
 
     async function api(path, method='GET', body) {
       const res = await fetch(server + path, {
@@ -84,13 +162,13 @@
       try {
         const s = await api('/status');
         statusEl.textContent = JSON.stringify(s, null, 2);
-        const b = document.getElementById('llmBanner');
-        b.textContent = 'LLM: ' + (s.llm && s.llm.active ? 'active' : 'inactive');
-        b.style.color = (s.llm && s.llm.active) ? '#065f46' : '#9ca3af';
+        const badge = document.getElementById('modelBadge');
+        const topBanner = document.getElementById('llmBannerTop');
+        if (badge) { badge.textContent = 'LLM: ' + ((s.llm && s.llm.active) ? 'active' : 'inactive') + (s.llm && s.llm.model ? ', ' + s.llm.model : ''); }
+        if (topBanner) { topBanner.style.display = (s.llm && s.llm.active) ? 'none' : 'block'; }
       } catch (e) {
         statusEl.textContent = String(e);
-        const b = document.getElementById('llmBanner');
-        b.textContent = 'LLM: unknown'; b.style.color = '#9ca3af';
+        const badge = document.getElementById('modelBadge'); if (badge) badge.textContent = 'LLM: unknown';
       }
     }
     async function refreshConfig() {
@@ -116,36 +194,45 @@
       if (!text) return;
       input.value = '';
       addMsg('user', text);
-
-      // Minimal intent parsing matching CLI fallback
-      const m = text.toLowerCase().match(/^move\s+([a-z0-9_\- ]+)\s+to\s+([a-z0-9_\-]+)$/);
-      let payload = null;
-      if (m) {
-        const object_id = m[1].replace(/\s+/g, '_');
-        const target = m[2];
-        payload = { name: 'move_object', arguments: { object_id, target } };
-      } else if (text.toLowerCase() === 'status') {
-        payload = { name: 'query_status', arguments: {} };
-      }
-
       try {
-        if (payload) {
-          const res = await api('/tool-call', 'POST', payload);
-          addMsg('bot', res.ok ? 'ok' : ('error: ' + (res.error || 'unknown')));
-          await refreshStatus();
-          await refreshConfig();
-    refreshMap();
-    setInterval(refreshMap, 4000);
-          await refreshMap();
+        const res = await api('/chat', 'POST', { text });
+        if (res.ok) {
+          addMsg('bot', res.assistant || 'ok');
         } else {
-          addMsg('bot', 'Try: "move blue cube to 1" or "status"');
+          addMsg('bot', 'error: ' + (res.error || 'unknown'));
         }
+        await refreshStatus();
+        await refreshConfig();
+        await refreshMap();
       } catch (e) {
         addMsg('bot', 'HTTP error: ' + e.message);
       }
     }
 
-    send.addEventListener('click', handleSend);
+        send.addEventListener('click', handleSend);
+    btnActivate && btnActivate.addEventListener('click', async () => {
+      const api_key = apiKeyEl.value.trim();
+      const model = modelEl.value.trim() || 'gpt-4o-mini';
+      try {
+        const res = await api('/llm/activate', 'POST', { api_key, model });
+        addMsg('bot', res.ok ? 'LLM activated' : ('activate error: ' + (res.error || 'unknown')));
+        await refreshStatus();
+      } catch (e) { addMsg('bot', 'HTTP error: ' + e.message); }
+    });
+    const bannerBtn = document.getElementById('bannerActivate');
+    if (bannerBtn) bannerBtn.addEventListener('click', async ()=>{
+      const api_key = (document.getElementById('apiKey')||{}).value || '';
+      const model = (document.getElementById('model')||{}).value || 'gpt-4o-mini';
+      try { const res = await api('/llm/activate', 'POST', { api_key, model }); await refreshStatus(); } catch(e){}
+    });
+    btnDeactivate && btnDeactivate.addEventListener('click', async () => {
+      try {
+        const res = await api('/llm/deactivate', 'POST', {});
+        addMsg('bot', res.ok ? 'LLM deactivated' : 'deactivate failed');
+        await refreshStatus();
+      } catch (e) { addMsg('bot', 'HTTP error: ' + e.message); }
+    });
+    document.querySelectorAll('.qbtn').forEach(btn=>btn.addEventListener('click', ()=>{ input.value = btn.getAttribute('data-cmd'); handleSend(); }));
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSend(); });
 
     refreshStatus();
