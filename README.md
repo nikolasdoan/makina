@@ -1,5 +1,7 @@
 # Makina — Conversational Robot Agent (UR5 + RealSense)
 
+[![CI](https://github.com/nikolasdoan/makina/actions/workflows/ci.yml/badge.svg)](https://github.com/nikolasdoan/makina/actions/workflows/ci.yml)
+
 Cloud-based, text-first agent to control a UR5 manipulator with a RealSense D435i. Runs a FastAPI tool server and a CLI chat on macOS for development, with ROS 2/MoveIt 2 on Ubuntu 22.04 later. ASCII maps visualize objects and zones.
 
 - PRD: `PRD.MD`
