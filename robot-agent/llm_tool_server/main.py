@@ -6,6 +6,8 @@ from typing import Any, Dict, Optional
 
 import yaml
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .bridge_ros2 import MockBridge, ZoneDefinition
@@ -103,6 +105,14 @@ def reload_bridge_zones_from_settings() -> None:
 
 
 app = FastAPI(title="Robot Agent Tool Server", version="0.1.0")
+
+# Enable CORS for local dev
+app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, allow_methods=['*'], allow_headers=['*'])
+
+# Serve simple web UI
+from pathlib import Path as _Path
+_BASE_DIR = _Path(__file__).resolve().parents[1]
+app.mount('/', StaticFiles(directory=str(_BASE_DIR / 'frontend'), html=True), name='static')
 
 
 @app.get("/status")
