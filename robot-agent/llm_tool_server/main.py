@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -111,6 +112,7 @@ app = FastAPI(title="Robot Agent Tool Server", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, allow_methods=['*'], allow_headers=['*'])
 
 # Serve simple web UI
+import os
 from pathlib import Path as _Path
 _BASE_DIR = _Path(__file__).resolve().parents[1]
 app.mount('/ui', StaticFiles(directory=str(_BASE_DIR / 'frontend'), html=True), name='static')
@@ -128,6 +130,7 @@ async def get_status() -> Dict[str, Any]:
         "llm": {
             "provider": SETTINGS.get("llm", {}).get("provider", "openai"),
             "model": SETTINGS.get("llm", {}).get("model", "gpt-4o-mini"),
+            "active": bool(os.getenv("OPENAI_API_KEY")),
         },
     }
 
