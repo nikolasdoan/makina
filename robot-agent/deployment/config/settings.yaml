@@ -10,13 +10,13 @@ safety:
   joint_acceleration_scale: 0.2
 zones:
   '1':
-    center_pose: &id003
+    center_pose: &id001
       x: 0.4
       y: 0.2
       z: 0.1
     tolerance_m: 0.03
   '2':
-    center_pose: &id001
+    center_pose:
       x: 0.4
       y: -0.2
       z: 0.1
@@ -41,14 +41,11 @@ objects:
   red_cube:
     pose: *id001
   blue_cube:
-    pose: *id002
+    pose: *id001
   green_cube:
-    pose: *id003
+    pose: *id001
   yellow_cube:
-    pose:
-      x: 0.32
-      y: 0.12
-      z: 0.05
+    pose: *id002
 workspace:
   bounds_m:
     x:
