@@ -1,4 +1,4 @@
-# Makina — Conversational Robot Agent (UR5 + RealSense)
+# Makina — Machine Control Intelligent Agent (UR5 + RealSense)
 
 [![CI](https://github.com/nikolasdoan/makina/actions/workflows/ci.yml/badge.svg)](https://github.com/nikolasdoan/makina/actions/workflows/ci.yml)
 
